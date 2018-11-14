@@ -1,0 +1,29 @@
+//
+//  ZBPrefixHeader.pch
+//  BaseProject
+//
+//  Created by bigfish on 2018/10/31.
+//  Copyright © 2018 bigfish. All rights reserved.
+//
+
+#ifndef ZBPrefixHeader_pch
+#define ZBPrefixHeader_pch
+
+//macro
+#import "ACMacros.h"
+#import "APIMacros.h"
+#import "NotificationMacros.h"
+#import "VendorMarcos.h"
+#import "UtilsMacros.h"
+
+//vendor
+#import <AFNetworkActivityIndicatorManager.h>
+#import "MBProgressHUD+ZBAddtional.h"
+
+//Helpers
+#import "ZBNetworking.h"
+
+
+
+
+#endif /* ZBPrefixHeader_pch */
