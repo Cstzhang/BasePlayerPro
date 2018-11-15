@@ -25,9 +25,9 @@ public:
     virtual bool Seek(double pos);
     virtual void Close();
     //Read the video parameter
-    virtual ZParameter GetVPara();
+    virtual ZBParameters GetVPara();
     //Read audio parameters
-    virtual ZParameter GetAPara();
+    virtual ZBParameters GetAPara();
     
     //Reads a frame of data, which is cleaned by the caller
     virtual ZBData Read();

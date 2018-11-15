@@ -13,7 +13,7 @@
 
 struct  AVCodecParameters;
 
-class ZParameter
+class ZBParameters
 {
 public:
     AVCodecParameters *para = 0;

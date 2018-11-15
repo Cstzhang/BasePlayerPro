@@ -10,20 +10,20 @@
 
 void IDemux::Main()
 {
-//    while (!isExit)
-//    {
-//        if(IsPause())
-//        {
-//            ZSleep(2);
-//            continue;
-//        }
-//        ZData d = Read();
-//        if (d.size > 0){
-//            Notify(d); //没有人接收的时候要进行处理
-//        } else
-//        {
-//            ZSleep(2);
-//        }
-//    }
+    while (!isExit)
+    {
+        if(IsPause())
+        {
+            ZSleep(2);
+            continue;
+        }
+        ZBData d = Read();
+        if (d.size > 0){
+            Notify(d); //Process when no one receives it
+        } else
+        {
+            ZSleep(2);
+        }
+    }
     
 }

@@ -100,44 +100,44 @@ bool ZBDemux::Open(const char *url)
 }
 
 //Read the video parameter
-ZParameter ZBDemux::GetVPara()
+ZBParameters ZBDemux::GetVPara()
 {
     mux.lock();
     if (!ic) {
         mux.unlock();
         ZLOGE("GetVPara failed! ic is NULL！\n");
-        return ZParameter();
+        return ZBParameters();
     }
     //Gets the video stream index
     int re = av_find_best_stream(ic, AVMEDIA_TYPE_VIDEO, -1, -1, 0, 0);
     if (re < 0) {
         mux.unlock();
         ZLOGE("av_find_best_stream failed!\n");
-        return ZParameter();
+        return ZBParameters();
     }
     videoStream = re;
-    ZParameter para;
+    ZBParameters para;
     para.para = ic->streams[re]->codecpar;
     mux.unlock();
     return para;
 }
 
-ZParameter ZBDemux::GetAPara(){
+ZBParameters ZBDemux::GetAPara(){
     mux.lock();
     if (!ic) {
         mux.unlock();
         ZLOGE("GetVPara failed! ic is NULL！\n");
-        return ZParameter();
+        return ZBParameters();
     }
     //Gets the audio stream index
     int re = av_find_best_stream(ic, AVMEDIA_TYPE_AUDIO, -1, -1, 0, 0);
     if (re < 0) {
         mux.unlock();
         ZLOGE("av_find_best_stream failed!\n");
-        return ZParameter();
+        return ZBParameters();
     }
     audioStream = re;
-    ZParameter para;
+    ZBParameters para;
     para.para = ic->streams[re]->codecpar;
     para.channels = ic->streams[re]->codecpar->channels;
     para.sample_rate = ic->streams[re]->codecpar->sample_rate;

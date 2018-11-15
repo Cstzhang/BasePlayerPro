@@ -8,11 +8,12 @@
 
 #import "ZBHomeViewController.h"
 //#import "avformat.h"
-#include "ZBDemux.hpp"
+//#include "ZBDemux.hpp"
 //#import "ZBDemux.hpp"
-
+#import "YUVView.h"
+#include "IPlayerProxy.hpp"
 @interface ZBHomeViewController ()
-
+@property (strong,nonatomic)  YUVView * playView;
 
 @end
 
@@ -39,10 +40,19 @@
     NSLog(@"test play video");
     
     NSString *videoPath = [ZBFileUtil bundlePath:@"1080.mp4"];
-    const char* destDir = [videoPath UTF8String];
-    IDemux *de = new ZBDemux();
-    de->Open(destDir);
-    
+//    NSString * path = @"rtsp://admin:cvte123456@172.18.223.100:554/mpeg4/ch1/sub/av_stream";
+//    const char* destDir = [videoPath UTF8String];
+//    IDemux *de = new ZBDemux();
+//    de->Open(destDir);
+    self.playView = [[YUVView alloc]initWithFrame:CGRectMake(0, 0, 352, 288)];
+    [self.playView setUp];
+    [self.view addSubview:self.playView];
+    void* point = (__bridge void*)self.playView;
+    IPlayerProxy::Get()->Init();
+    IPlayerProxy::Get()->InitView(point, (void *)(_playView.call));
+    IPlayerProxy::Get()->Open(videoPath.UTF8String);
+    [self.playView setUp];
+    IPlayerProxy::Get()->Start();
 }
 
 
