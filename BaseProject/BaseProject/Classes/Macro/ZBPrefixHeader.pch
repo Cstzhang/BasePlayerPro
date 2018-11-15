@@ -9,6 +9,10 @@
 #ifndef ZBPrefixHeader_pch
 #define ZBPrefixHeader_pch
 
+#ifdef __OBJC__
+#import <UIKit/UIKit.h>
+#import <Foundation/Foundation.h>
+
 //macro
 #import "ACMacros.h"
 #import "APIMacros.h"
@@ -17,11 +21,16 @@
 #import "UtilsMacros.h"
 
 //vendor
-#import <AFNetworkActivityIndicatorManager.h>
 #import "MBProgressHUD+ZBAddtional.h"
+#import <AFNetworkActivityIndicatorManager.h>
 
 //Helpers
 #import "ZBNetworking.h"
+
+#import "ZBFileUtil.h"
+
+#endif
+
 
 
 
