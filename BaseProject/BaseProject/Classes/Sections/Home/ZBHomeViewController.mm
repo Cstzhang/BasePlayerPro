@@ -7,14 +7,11 @@
 //
 
 #import "ZBHomeViewController.h"
-//#import "avformat.h"
-//#include "ZBDemux.hpp"
-//#import "ZBDemux.hpp"
-#import "YUVView.h"
-#include "IPlayerProxy.hpp"
+#import "IPlayerProxy.h"
+#import "ZPlayerView.h"
 @interface ZBHomeViewController ()
-@property (strong,nonatomic)  YUVView * playView;
 
+@property (nonatomic,strong) ZPlayerView *playView;
 @end
 
 @implementation ZBHomeViewController
@@ -23,7 +20,11 @@
     [super viewDidLoad];
     // Do any additional setup after loading the view from its nib.
     
-
+    self.playView = [[ZPlayerView alloc]initWithFrame:CGRectMake(0, 0, 352, 288)];
+//   [self.playView setup];
+    [self.view addSubview:self.playView];
+    
+ 
     
     //test http
 
@@ -38,21 +39,15 @@
 
 - (IBAction)TestPlayEvent:(id)sender {
     NSLog(@"test play video");
-    
-    NSString *videoPath = [ZBFileUtil bundlePath:@"1080.mp4"];
-//    NSString * path = @"rtsp://admin:cvte123456@172.18.223.100:554/mpeg4/ch1/sub/av_stream";
-//    const char* destDir = [videoPath UTF8String];
-//    IDemux *de = new ZBDemux();
-//    de->Open(destDir);
-    self.playView = [[YUVView alloc]initWithFrame:CGRectMake(0, 0, 352, 288)];
-    [self.playView setUp];
-    [self.view addSubview:self.playView];
     void* point = (__bridge void*)self.playView;
+    
+    ////    NSString * path = @"rtsp://admin:cvte123456@172.18.223.100:554/mpeg4/ch1/sub/av_stream";
     IPlayerProxy::Get()->Init();
-    IPlayerProxy::Get()->InitView(point, (void *)(_playView.call));
+    IPlayerProxy::Get()->BindView(point,(void *)(_playView.rCall),(void *)(_playView.sCall));
+    NSString *videoPath = [ZBFileUtil bundlePath:@"1080.mp4"];
     IPlayerProxy::Get()->Open(videoPath.UTF8String);
-    [self.playView setUp];
     IPlayerProxy::Get()->Start();
+    
 }
 
 

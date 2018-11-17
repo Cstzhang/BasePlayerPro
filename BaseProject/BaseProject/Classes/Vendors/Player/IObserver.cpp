@@ -1,33 +1,30 @@
 //
-//  IObserver.cpp
-//  BaseProject
-//
-//  Created by bigfish on 2018/11/15.
-//  Copyright © 2018 bigfish. All rights reserved.
+// Created by bigfish on 2018/10/12.
 //
 
-#include "IObserver.hpp"
+#include "IObserver.h"
 
-//The main body function
+
+//主体函数
 void IObserver::AddObs(IObserver *obs)
 {
     if(!obs)return;
-    
+
     mux.lock();
     obss.push_back(obs);
     mux.unlock();
-    
+
 }
 
 
-//Notify all observers
-void IObserver::Notify(ZBData data)
+//通知所有观察者
+void IObserver::Notify(ZData data)
 {
     mux.lock();
-    for (int i = 0; i < obss.size(); ++i) {// obss.size() Don't use it when it's less efficient
+    for (int i = 0; i < obss.size(); ++i) {// obss.size()效率比较低 数据大的时候不要使用
         obss[i]->Update(data);
     }
     mux.unlock();
-    
-    
+
+
 }

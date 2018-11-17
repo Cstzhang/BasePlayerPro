@@ -1,25 +1,21 @@
 //
-//  IPlayerProxy.cpp
-//  BaseProject
-//
-//  Created by bigfish on 2018/11/15.
-//  Copyright © 2018 bigfish. All rights reserved.
+// Created by bigfish on 2018/10/26.
 //
 
-#include "IPlayerProxy.hpp"
-#include "ZBPlayerBuilder.hpp"
+#include "IPlayerProxy.h"
+#include "FFPlayerBuilder.h"
 
 void IPlayerProxy::Init(void *vm)
 {
     mux.lock();
     if(vm)
     {
-        ZBPlayerBuilder::InitHard(vm);
+        FFPlayerBuilder::InitHard(vm);
     }
-    
+
     if (!player)
     {
-        player = ZBPlayerBuilder::Get()->BuilderPlayer();
+        player = FFPlayerBuilder::Get()->BuilderPlayer();
     }
     mux.unlock();
 }
@@ -52,7 +48,7 @@ bool IPlayerProxy::Seek(double pos)
     mux.lock();
     if (player)
     {
-        player->Seek(pos);
+       player->Seek(pos);
     }
     mux.unlock();
     return re;
@@ -63,11 +59,11 @@ bool IPlayerProxy::IsPause()
     mux.lock();
     if (player)
     {
-        re = player->IsPause();
+       re = player->IsPause();
     }
     mux.unlock();
     return re;
-    
+
 }
 
 
@@ -79,7 +75,7 @@ void IPlayerProxy::SetPause(bool isP)
         player->SetPause(isP);
     }
     mux.unlock();
-    
+
 }
 
 bool IPlayerProxy::Open(const char *path)
@@ -106,18 +102,15 @@ bool IPlayerProxy::Start()
     mux.unlock();
     return re;
 }
-void IPlayerProxy::InitView(void *win,void *call)
+void IPlayerProxy::BindView(void *win,void *randerCall,void *shaderCall)
 {
     mux.lock();
     if (player)
     {
-        player->InitView(win,call);
+        player->BindView(win,randerCall,shaderCall);
     }
     mux.unlock();
 }
-void IPlayerProxy::SetShaderVertex(float widthRatioForScreen, float heightRationForScreen, float screenRatio) {
-    mux.lock();
-    if (player)
-        player->SetShaderVertex(widthRatioForScreen, heightRationForScreen, screenRatio);
-    mux.unlock();
-}
+
+
+

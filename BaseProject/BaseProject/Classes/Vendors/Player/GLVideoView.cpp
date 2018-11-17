@@ -1,61 +1,44 @@
 //
-//  GLVideoView.cpp
-//  BaseProject
-//
-//  Created by bigfish on 2018/11/15.
-//  Copyright © 2018 bigfish. All rights reserved.
+// Created by bigfish on 2018/10/16.
 //
 
-#include "GLVideoView.hpp"
-#include "ZBTexture.hpp"
-
-void  GLVideoView::SetRender(void *win,void *mycall)
+#include "GLVideoView.h"
+#include "ZTexture.h"
+#include "ZLog.h"
+void  GLVideoView:: SetRender(void *win,void *randerCall,void *shaderCall)
 {
     view = win;
-    call = mycall;
+    rCall = randerCall;
+    sCall = shaderCall;
 }
+
+
 void  GLVideoView::Close()
 {
     mux.lock();
-    
+
     if(txt)
     {
         txt->Drop();
         txt = 0;
     }
-    
+
     mux.unlock();
 }
 
-void  GLVideoView::Render(ZBData data)
+void  GLVideoView::Render(ZData data)
 {
-    if(!view)return;
+    if(!view){
+        ZLOGE("view is nil! txt init failed! \n");
+        return;
+    }
+    
     if(!txt)
     {
         //创建 texture
-        txt = ZBTexture::Create();
-        
-        // 设置shader显示比例
-        if (height == -10.0f) {
-            float temp = 2 * width * (float)data.height / (float)data.width;
-            height = (1.0f - temp * screenRatio);
-        } else {
-            height = 1.0f - 2 * height;
-        }
-        width = -1.0f + 2 * width;
-        txt->SetShaderVertex(width, height);
-        txt->Init(view,call, static_cast<ZTextureType>(data.format));
+        txt = ZTexture::Create();
+        txt->Init(view,rCall,sCall,(ZTextureType)data.format);
     }
     txt->Draw(data.datas,data.width,data.height);
-    
-}
 
-void GLVideoView::SetShaderVertex(float widthRatioForScreen, float heightRationForScreen,float screenRatio) {
-    mux.lock();
-    // 设置宽高
-    width = widthRatioForScreen;
-    height = heightRationForScreen;
-    this->screenRatio = screenRatio;
-    
-    mux.unlock();
 }

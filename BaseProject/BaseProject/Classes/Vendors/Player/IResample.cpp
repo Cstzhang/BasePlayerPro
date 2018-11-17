@@ -1,17 +1,14 @@
 //
-//  IResample.cpp
-//  BaseProject
-//
-//  Created by bigfish on 2018/11/15.
-//  Copyright © 2018 bigfish. All rights reserved.
+// Created by bigfish on 2018/10/17.
 //
 
-#include "IResample.hpp"
+#include "IResample.h"
+#include "ZLog.h"
 
-void IResample::Update(ZBData data)
+void IResample::Update(ZData data)
 {
-    ZBData d = this->Resample(data);
-    //    ZLOGI("IResample::Update %d",d.size);
+    ZData d = this->Resample(data);
+//    ZLOGI("IResample::Update %d",d.size);
     if (d.size > 0)
     {
         this->Notify(d);

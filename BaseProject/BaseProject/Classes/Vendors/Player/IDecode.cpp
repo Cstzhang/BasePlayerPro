@@ -1,27 +1,25 @@
 //
-//  IDecode.cpp
-//  BaseProject
-//
-//  Created by bigfish on 2018/11/15.
-//  Copyright © 2018 bigfish. All rights reserved.
+// Created by bigfish on 2018/10/12.
 //
 
-#include "IDecode.hpp"
+#include "IDecode.h"
+#include "ZLog.h"
 
-//Data by the principal notify
-void IDecode::Update(ZBData pkt)
+
+//由主体notify的数据
+void IDecode::Update(ZData pkt)
 {
     if(pkt.isAudio != isAudio)
     {
         return;
     }
-    
+
     while (!isExit)
     {
-        
+
         packsMutex.lock();
-        
-        //blocking
+
+        //阻塞
         if (packs.size() < maxList)
         {
             packs.push_back(pkt);
@@ -35,7 +33,7 @@ void IDecode::Update(ZBData pkt)
 
 void  IDecode::Clear()
 {
-    
+
     packsMutex.lock();
     while (!packs.empty())
     {
@@ -45,67 +43,65 @@ void  IDecode::Clear()
     pts = 0;
     synPts = 0;
     packsMutex.unlock();
-    
+
 }
 
 void IDecode::Main()
 {
     while (!isExit)
     {
-        
-        
+
+
         if(IsPause())
         {
             ZSleep(2);
             continue;
         }
-        
+
         packsMutex.lock();
-        //Determine audio and video synchronization
+        //判断音视频同步
         if(!isAudio && synPts > 0)
         {
-            if (synPts < pts)
-                //The time of the audio is less than the time of video
-                //which means the audio is playing slower, and video stops and waits for the audio
+            if (synPts < pts)//音频的时间小于视频的时间 表示音频放的慢一些，视频停下来等音频
             {
                 packsMutex.unlock();
                 ZSleep(1);
                 continue;
-                
+
             }
         }
-        
-        
+
+
         if (packs.empty())
         {
             packsMutex.unlock();
-            ZSleep(1);//Releases the CPU currently occupied
+            ZSleep(1);//释放当前占用的cpu
             continue;
         }
-        //Get packet
-        ZBData pack = packs.front();//Take out the earliest data
-        packs.pop_front();//Delete the data in the linked list after it is removed
-        //Send data to the decoding thread
+        //取出packet
+        ZData pack = packs.front();//取出最早的数据
+        packs.pop_front();//取出后在 链表中删除数据
+        //发数据到解码线程
         if(this->SendPacket(pack))
         {
-            while (!isExit)//It's going to come up on audio  Once the send Many times recv
+            while (!isExit)//可能一次send 多次recv 音频的时候会出现
             {
-                //Acquisition of decoded data
-                ZBData frame = RecvFrame();
+                //获取解码数据
+                ZData frame = RecvFrame();
                 if (!frame.data) break;
                 pts = frame.pts;
-                //Send data to the observer
+                //发送数据给观察者 
                 this->Notify(frame);
             }
-            
+
         }
-        
-        pack.Drop();//Clean up the data
+
+        pack.Drop();//清理数据
         packsMutex.unlock();
-        
-        
+
+
     }
-    
-    
+
+
 }
 

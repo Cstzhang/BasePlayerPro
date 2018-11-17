@@ -1,17 +1,13 @@
 //
-//  IPlayerBuilder.cpp
-//  BaseProject
-//
-//  Created by bigfish on 2018/11/15.
-//  Copyright © 2018 bigfish. All rights reserved.
+// Created by bigfish on 2018/10/25.
 //
 
-#include "IPlayerBuilder.hpp"
-#include "IVideoView.hpp"
-#include "IResample.hpp"
-#include "IDecode.hpp"
-#include "IAudioPlay.hpp"
-#include "IDemux.hpp"
+#include "IPlayerBuilder.h"
+#include "IVideoView.h"
+#include "IResample.h"
+#include "IDecode.h"
+#include "IAudioPlay.h"
+#include "IDemux.h"
 
 IPlayer  *IPlayerBuilder::BuilderPlayer(unsigned char index)
 {
@@ -34,13 +30,13 @@ IPlayer  *IPlayerBuilder::BuilderPlayer(unsigned char index)
     //音频播放观察重采样
     IAudioPlay *audioPlay = CreateAudioPlay();
     resample->AddObs(audioPlay);
-    
+
     play->demux = de;
     play->adecode = adecode;
     play->vdecode = vdecode;
     play->videoView = view;
     play->resample = resample;
     play->audioPlay = audioPlay;
-    
+
     return play;
 }

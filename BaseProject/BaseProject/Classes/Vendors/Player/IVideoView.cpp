@@ -1,14 +1,11 @@
 //
-//  IVideoView.cpp
-//  BaseProject
-//
-//  Created by bigfish on 2018/11/15.
-//  Copyright © 2018 bigfish. All rights reserved.
+// Created by bigfish on 2018/10/16.
 //
 
-#include "IVideoView.hpp"
+#include "IVideoView.h"
 
-void IVideoView::Update(ZBData data)
+
+void IVideoView::Update(ZData data)
 {
     this->Render(data);
 }

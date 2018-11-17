@@ -1,29 +1,25 @@
 //
-//  IPlayer.cpp
-//  BaseProject
-//
-//  Created by bigfish on 2018/11/15.
-//  Copyright © 2018 bigfish. All rights reserved.
+// Created by bigfish on 2018/10/19.
 //
 
-#include "IPlayer.hpp"
-#include "IDemux.hpp"
-#include "IDecode.hpp"
-#include "IResample.hpp"
-#include "IAudioPlay.hpp"
-#include "IVideoView.hpp"
-#include "ZBLog.hpp"
+#include "IPlayer.h"
 
+#include "IDemux.h"
+#include "IDecode.h"
+#include "IResample.h"
+#include "IAudioPlay.h"
+#include "IVideoView.h"
+#include "ZLog.h"
 IPlayer *IPlayer::Get(unsigned char index)
 {
     static IPlayer p[256];
     return  &p[index];
 }
 
-//Used to synchronize audio and video
+//用作音视频同步
 void IPlayer::Main()
 {
-    
+
     while (!isExit)
     {
         mux.lock();
@@ -32,101 +28,101 @@ void IPlayer::Main()
             mux.unlock();
             ZSleep(2);
             continue;
-            
+
         }
-        //synchronize
-        //Get PTS for audio
-        long long apts = audioPlay->pts;
-        // ZLOGE(" apts %d",apts);
+        //同步
+        //获取音频的pts 告诉视频
+        long long  apts = audioPlay->pts;
+       // ZLOGE(" apts %d",apts);
         vdecode->synPts = apts;
-        
+
         mux.unlock();
         ZSleep(200);
     }
-    
+
 }
 void IPlayer::Close()
 {
     mux.lock();
-    //1 Close the main thread before cleaning up the observer
-    
-    //Thread synchronization
-    ZBThread::Stop();
-    //decapsulation
+    //1 先关闭主体线程 再清理观察者
+
+    //同步线程
+    ZThread::Stop();
+    //解封装
     if(demux)
     {
         demux->Stop();
     }
-    
-    //decode
+
+    //解码
     if(vdecode)
     {
         vdecode->Stop();
     }
-    
+
     if(adecode)
     {
         adecode->Stop();
     }
-    
+
     if(audioPlay)
     {
         audioPlay->Stop();
     }
-    
-    
-    //2 Clear buffer queue
+
+
+    //2 清理缓冲队列
     if(vdecode)
     {
         vdecode->Clear();
     }
-    
+
     if(adecode)
     {
         adecode->Clear();
     }
-    
+
     if(audioPlay)
     {
         audioPlay->Clear();
     }
-    
-    
-    //3 Clean up resources
+
+
+    //3 清理资源
     if(audioPlay)
     {
         audioPlay->Close();
     }
-    
+
     if(videoView)
     {
         videoView->Close();
     }
-    
+
     if(vdecode)
     {
         vdecode->Close();
     }
-    
+
     if(adecode)
     {
         adecode->Close();
     }
-    
+
     if(demux)
     {
         demux->Close();
     }
-    
+
     mux.unlock();
 }
 
 double IPlayer::PlayPos()
 {
-    
+
     double pos = 0.0;
     mux.lock();
-    long long total = 0;
+    int total = 0;
     if(demux)
         total = demux->totalMs;
     if(total>0)
@@ -137,14 +133,14 @@ double IPlayer::PlayPos()
         }
     }
     mux.unlock();
-    //    ZLOGE("pos   %lld",vdecode->pts/total);
+//    ZLOGE("pos   %lld",vdecode->pts/total);
     return pos;
 }
 
 void IPlayer::SetPause(bool isP)
 {
     mux.lock();
-    ZBThread::SetPause(isP);
+     ZThread::SetPause(isP);
     if(demux)
     {
         demux->SetPause(isP);
@@ -162,39 +158,39 @@ void IPlayer::SetPause(bool isP)
         audioPlay->SetPause(isP);
     }
     mux.unlock();
-    
+
 }
 
 bool IPlayer::Seek(double pos)
 {
     bool re = false;
     if(!demux) return false;
-    
-    //Pause all threads
+
+    //暂停所有线程
     SetPause(true);
     mux.lock();
-    //Clean up the buffer
-    //2 Clear buffer queue
+    //清理缓冲
+    //2 清理缓冲队列
     if(vdecode)
-        vdecode->Clear(); //Clear the buffer queue, clear the ffmpeg buffer
+        vdecode->Clear(); //清理缓冲队列，清理ffmpeg的缓冲
     if(adecode)
         adecode->Clear();
     if(audioPlay)
         audioPlay->Clear();
-    
-    
-    re = demux->Seek(pos); //seek Skip to keyframe
+
+
+    re = demux->Seek(pos); //seek跳转到关键帧
     if(!vdecode)
     {
         mux.unlock();
         SetPause(false);
         return re;
     }
-    //Decoding to the actual frame to be displayed
+    //解码到实际需要显示的帧
     int seekPts = pos*demux->totalMs;
     while(!isExit)
     {
-        ZBData pkt = demux->Read();
+        ZData pkt = demux->Read();
         if(pkt.size<=0)break;
         if(pkt.isAudio)
         {
@@ -203,15 +199,15 @@ bool IPlayer::Seek(double pos)
                 pkt.Drop();
                 continue;
             }
-            //Write buffer queue
+            //写入缓冲队列
             demux->Notify(pkt);
             continue;
         }
-        
-        //Decode the data before the frame that needs to be displayed
+
+        //解码需要显示的帧之前的数据
         vdecode->SendPacket(pkt);
         pkt.Drop();
-        ZBData data = vdecode->RecvFrame();
+        ZData data = vdecode->RecvFrame();
         if(data.size <=0)
         {
             continue;
@@ -223,41 +219,41 @@ bool IPlayer::Seek(double pos)
         }
     }
     mux.unlock();
-    
+
     SetPause(false);
     return re;
-    
+
 }
 
 bool IPlayer::Open(const char *path)
 {
     Close();
     mux.lock();
-    //decapsulation
+    //解封装
     if(!demux || !demux->Open(path))
     {
         mux.unlock();
         ZLOGE("demux->Open failed! %s",path);
         return false;
     }
-    //Decoding and decoding may not require unsealing after the original data
+    //解码 解码可能不需要 解封装后就是原始数据
     if(!vdecode || !vdecode->Open(demux->GetVPara(),isHardDecode))
     {
         ZLOGE("vdecode->Open failed! %s",path);
         //return false;
     }
-    
+
     if(!adecode || !adecode->Open(demux->GetAPara()))
     {
         ZLOGE("vdecode->Open failed! %s",path);
         //return false;
     }
-    //Resampling may not require decoding or unsealing after installation can be played
+    //重采样 有可能不需要 解码后或者解封装后可之别播放
     outPara = demux->GetAPara();
-    //    if(outPara.sample_rate <=0)
-    //    {
-    
-    //    }
+//    if(outPara.sample_rate <=0)
+//    {
+
+//    }
     if(!resample || !resample->Open(demux->GetAPara(),outPara))
     {
         ZLOGE("resample->Open failed! %s",path);
@@ -270,7 +266,7 @@ bool IPlayer::Open(const char *path)
 bool IPlayer::Start()
 {
     mux.lock();
-    
+
     if(audioPlay)
     {
         audioPlay->StartPlay(outPara);
@@ -283,50 +279,47 @@ bool IPlayer::Start()
     {
         adecode->Start();
     }
-    
+
     if(!demux || !demux->Start())
     {
         mux.unlock();
         ZLOGE("demux->Start failed! ");
         return false;
     }
-    //
-    //    if(vdecode)
-    //        vdecode->Start();
-    //
-    //
-    //
-    //    if(!demux || !demux->Start())
-    //    {
-    //        mux.unlock();
-    //        ZLOGE("demux->Start failed!");
-    //        return false;
-    //    }
-    //    if(adecode)
-    //        adecode->Start();
-    //    if(audioPlay)
-    //        audioPlay->StartPlay(outPara);
-    
-    
-    ZBThread::Start();
-    
+//
+//    if(vdecode)
+//        vdecode->Start();
+//
+//
+//
+//    if(!demux || !demux->Start())
+//    {
+//        mux.unlock();
+//        ZLOGE("demux->Start failed!");
+//        return false;
+//    }
+//    if(adecode)
+//        adecode->Start();
+//    if(audioPlay)
+//        audioPlay->StartPlay(outPara);
+
+
+    ZThread::Start();
+
     mux.unlock();
     return true;
 }
 
-void IPlayer::InitView(void *win,void *call)
+void IPlayer::BindView(void *win,void *randerCall,void *shaderCall)
 {
     if(videoView)
     {
         videoView->Close();
-        videoView->SetRender(win,call);
+        videoView->SetRender(win,randerCall,shaderCall);
     }
-    
+
 }
 
-void IPlayer::SetShaderVertex(float widthRatioForScreen, float heightRationForScreen, float screenRatio) {
-    mux.lock();
-    videoView->SetShaderVertex(widthRatioForScreen, heightRationForScreen,screenRatio);
-    mux.unlock();
-}
+
+
 

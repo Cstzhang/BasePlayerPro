@@ -1,28 +1,26 @@
 //
-//  IAudioPlay.cpp
-//  BaseProject
-//
-//  Created by bigfish on 2018/11/15.
-//  Copyright © 2018 bigfish. All rights reserved.
+// Created by bigfish on 2018/10/18.
 //
 
-#include "IAudioPlay.hpp"
+#include "IAudioPlay.h"
+#include "ZLog.h"
+
 
 void IAudioPlay::Clear()
 {
     framesMutes.lock();
-    
+
     while (!frames.empty())
     {
         frames.front().Drop();
         frames.pop_front();
-        
+
     }
     framesMutes.unlock();
 }
-ZBData IAudioPlay::GetData()
+ZData IAudioPlay::GetData()
 {
-    ZBData d;
+    ZData d;
     isRunning = true;
     while(!isExit)
     {
@@ -34,29 +32,29 @@ ZBData IAudioPlay::GetData()
         framesMutes.lock();
         if(!frames.empty())
         {
-            //Data return
+            //有数据返回
             d = frames.front();
             frames.pop_front();
             framesMutes.unlock();
             pts = d.pts;
             return  d;
         }
-        
+
         framesMutes.unlock();
         ZSleep(1);
     }
-    
+
     isRunning = false;
-    //Unobtained data
+    //未获取数据
     return d;
 }
 
 
 
-void IAudioPlay::Update(ZBData data)
+void IAudioPlay::Update(ZData data)
 {
-    // ZLOGI("IAudioPlay::Update %d",data.size);
-    //Push into the buffer queue
+   // ZLOGI("IAudioPlay::Update %d",data.size);
+    //压入缓冲队列
     if(data.size <= 0 || !data.data)return;
     while(!isExit)
     {
@@ -71,6 +69,6 @@ void IAudioPlay::Update(ZBData data)
         framesMutes.unlock();
         break;
     }
-    
-    
+
+
 }
