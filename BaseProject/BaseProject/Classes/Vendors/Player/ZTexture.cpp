@@ -75,7 +75,7 @@ public:
         {
             //ZLOGI("===== ZTEXTURE_nv12 ======");
          //   sh.GetTexture(1,width/2,height/2,data[1], true);  // UV
-        }
+        } 
         //sh.Draw();
 //        ZEGL::Get()->Draw();
         this->drawCall(this->win,this->type,width,height,data);
