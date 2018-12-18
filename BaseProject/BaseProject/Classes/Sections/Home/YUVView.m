@@ -1,37 +1,23 @@
 //
-//  ZPlayerView.m
-//  BaseProject
+//  YUVView.m
+//  OpenGL_YUV_detec
 //
-//  Created by bigfish on 2018/11/16.
-//  Copyright © 2018 bigfish. All rights reserved.
+//  Created by Ruiwen Feng on 2017/5/19.
+//  Copyright © 2017年 Ruiwen Feng. All rights reserved.
 //
 
-#import "ZPlayerView.h"
-#import <OpenGLES/ES2/gl.h>
-#import <OpenGLES/ES2/glext.h>
+#import "YUVView.h"
 #import <QuartzCore/QuartzCore.h>
+#import <OpenGLES/ES3/gl.h>
+#import <OpenGLES/ES3/glext.h>
 #import <OpenGLES/EAGL.h>
-#include "ZShader.h"
 
-void RrenderWith(void * caller ,ZTextureType type, int width, int height, unsigned char *data[]){
-    [(__bridge id)caller render:type w:width h:height data:data];
-}
 
-void InitShaderWith(void * caller ,ZShaderType type){
-    [(__bridge id)caller setShader:type];
-}
 
-@interface ZPlayerView()
-{
-    //设置基础的几个成员变量
-//    CAEAGLLayer *_eaglLayer;
-//    EAGLContext *_context;
-    GLuint       _framebuffer;
-    GLuint       _renderbuffer;
-//    CGSize       _bufferSize;
-  //  ZShader      _shader;
+@interface YUVView () {
     GLuint _texture_YUV[3];    //纹理数组。 分别用来存放Y,U,V
-    
+    GLuint _framebuffer;        //缓存buf区
+    GLuint _renderbuffer;       //渲染buf区
 }
 @property (strong,nonatomic) EAGLContext * context;       //上下文
 @property (strong,nonatomic) CAEAGLLayer * drawLayer;     //画布
@@ -39,252 +25,71 @@ void InitShaderWith(void * caller ,ZShaderType type){
 @property (assign,nonatomic) GLuint        width;
 @property (assign,nonatomic) GLuint        height;
 @property (nonatomic) FILE     *file;
-
 @end
 
-@implementation ZPlayerView
+//void OcObjectDrawWith(void* caller, void* data, unsigned int w, unsigned int h){
+//    [(__bridge id)caller displayYUVI420Data:data width:w height:h];
+//}
+
+
+void OcObjectDrawWith(void * caller ,unsigned int index, int width, int height, unsigned char* buf[], bool isa){
+    [(__bridge id)caller GetTexture:index width:width height:height buf:buf isa:isa];
+}
+
+@implementation YUVView
 
 
 - (instancetype)initWithFrame:(CGRect)frame{
     self = [super initWithFrame:frame];
     if (self) {
-        NSLog(@"%@",[NSThread currentThread]);
-//        _rCall = RrenderWith;
-   
-//        [self textureSetup];
-//        [self setupRenderBuffer];
-//        [self shader_programSetup];
-//        NSError *error;
-//        NSAssert1([self checkFramebuffer:&error], @"%@",error.userInfo[@"ErrorMessage"]);
+//        _call = OcObjectDrawWith;
+        _call = OcObjectDrawWith;
     }
     return self;
 }
 
-- (void)setup {
-    [self setupLayer];
-    [self setupContext];
+- (void)setUp {
+    [self layerSetup];//显示画布
+    [self contextSetup];//上下文
     [self textureSetup];//纹理
     [self shader_programSetup];//着色器
     
-}
-
-
-+ (Class)layerClass {
-    return [CAEAGLLayer class];
-}
-
-- (void)setupLayer {
-    // 用于显示的layer
-    self.drawLayer = (CAEAGLLayer *)self.layer;
+    NSString * pathss = [[NSBundle mainBundle] pathForResource:@"file" ofType:@"yuv"];
     
-    // CALayer 默认是透明的（opaque = NO），而透明的层对性能负荷很大。所以将其关闭。
+    
+    self.file = fopen(pathss.UTF8String, "r");
+}
+
+
+- (void)layerSetup {
+    self.drawLayer = (CAEAGLLayer*) self.layer;
+    //默认透明，改为不透明。
     self.drawLayer.opaque = YES;
-    
-    //保持跟手机主屏幕一致，在不同手机上自适应
-    self.drawLayer.contentsScale = [UIScreen mainScreen].scale;
     //以及颜色存储格式。
     self.drawLayer.drawableProperties = [NSDictionary dictionaryWithObjectsAndKeys:
-                                         [NSNumber numberWithBool:NO],
-                                     kEAGLDrawablePropertyRetainedBacking,
-                                         kEAGLColorFormatRGBA8,
-                                     kEAGLDrawablePropertyColorFormat,
+                                         [NSNumber numberWithBool:NO], kEAGLDrawablePropertyRetainedBacking,
+                                         kEAGLColorFormatRGBA8, kEAGLDrawablePropertyColorFormat,
                                          nil];
+    //    当renderbuffer需要保持其内容不变时，我们才设置 kEAGLDrawablePropertyRetainedBacking  为 TRUE
 }
 
-- (void)setupContext {
-    if (!_context) {
-        NSLog(@"%@",[NSThread currentThread]);
-//        NSLog(@"%@",NSThread.currentThread);
-        // 创建GL环境上下文
-        // EAGLContext 管理所有通过 OpenGL ES 进行渲染的信息.
-        self.context  = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
-        //setCurrentContext
-        BOOL re;
-        re = [EAGLContext setCurrentContext:self.context ];
-        if (!re) {
-            NSLog(@"setCurrentContext failed!");
-        }
-    }else{
-        NSLog(@"creat EAGLContext failed!");
-    }
-//    NSAssert(_context && [EAGLContext setCurrentContext:_context], @"初始化GL环境失败");
-   
-}
-
-- (void)setupRenderBuffer {
+- (void)contextSetup {
     
-    NSLog(@"%@",[NSThread currentThread]);
-    if (_framebuffer) {
-        glDeleteFramebuffers(1, &_framebuffer);
-        _framebuffer = 0;
-    }
-    // 生成 framebuffer ( framebuffer = 画布 ) 帧缓冲区
-    glGenFramebuffers(1, &_framebuffer);
+    //创建上下文
+    self.context = [[EAGLContext alloc]initWithAPI:kEAGLRenderingAPIOpenGLES2];
     
-    // 生成 renderbuffer ( renderbuffer = 用于展示的窗口 )绘制缓冲区
-    glGenRenderbuffers(1, &_renderbuffer);
-    
-    // 绑定 fraembuffer  绑定帧缓冲区到渲染管线
-    glBindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
-    // 绑定 renderbuffer 绑定绘制缓冲区到渲染管线
-    glBindRenderbuffer(GL_RENDERBUFFER, _renderbuffer);
-    // 为绘制缓冲区分配存储区 此处把CAEAGLLayer的绘制存储区作为绘制缓冲区的存储区
-    [self.context  renderbufferStorage:GL_RENDERBUFFER fromDrawable:self.drawLayer];
-    
-    //获取绘制缓冲区的像素宽高
-    GLint width,height;
-    glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_WIDTH, &width);
-    glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_HEIGHT, &height);
-    
-    //决定视见区域
-    glViewport(0, 0, width, height);
-    
-    //将绘制缓冲区绑定到帧缓冲区
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
-                              GL_RENDERBUFFER, _renderbuffer);
-    
-
-    
-}
-
-
-
-- (BOOL)checkFramebuffer:(NSError *__autoreleasing *)error {
-    // 检查 framebuffer 是否创建成功
-    GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-    NSString *errorMessage = nil;
-    BOOL result = NO;
-    
-    switch (status)
-    {
-        case GL_FRAMEBUFFER_UNSUPPORTED:
-            errorMessage = @"framebuffer不支持该格式";
-            result = NO;
-            break;
-        case GL_FRAMEBUFFER_COMPLETE:
-            NSLog(@"framebuffer 创建成功");
-            result = YES;
-            break;
-        case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:
-            errorMessage = @"Framebuffer不完整 缺失组件";
-            result = NO;
-            break;
-        case GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS:
-            errorMessage = @"Framebuffer 不完整, 附加图片必须要指定大小";
-            result = NO;
-            break;
-        default:
-            // 一般是超出GL纹理的最大限制
-            errorMessage = @"未知错误 error !!!!";
-            result = NO;
-            break;
+    if (self.context == nil) {
+        NSLog(@"API NOT SUPPORT!");
+        return;
     }
     
-    NSLog(@"%@",errorMessage ? errorMessage : @"");
-    *error = errorMessage ? [NSError errorWithDomain:@"com.colin.error"
-                                                code:status
-                                            userInfo:@{@"ErrorMessage" : errorMessage}] : nil;
-    
-    return result;
-}
-
-- (void)render:(ZTextureType)type w:(int)width h:(int)height data:(unsigned char *[])data{
-    
-    
-        __weak __typeof(self)weakSelf = self;
-        dispatch_async(dispatch_get_main_queue(), ^{
-             __strong __typeof(weakSelf)strongSelf = weakSelf;
-            //设置着色器属性
-            [strongSelf setVertexAttributeWidth:width height:height];
-            
-            /*定义2d图层
-             之所以要定义，是因为
-             glTexSubImage2D:定义一个存在的一维纹理图像的一部分,但不能定义新的纹理
-             glTexImage2D:   定义一个二维的纹理图
-             所以每次宽高变化的时候需要调用glTexImage2D重新定义一次
-             */
-            [strongSelf image2DdefineWidth:width height:height];
-            
-            
-            //设置width，height
-            [strongSelf setWidth:width height:height];
-            
-            //YUV420p 4个Y对应一套UV，平面结构。 YUV的分布：YYYYUV。Y在一开始。长度等于点数，即宽高的积。
-            //            glBindTexture(GL_TEXTURE_2D, self->_texture_YUV[index]);
-            //            glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, GL_LUMINANCE, GL_UNSIGNED_BYTE,buf[0]);
-            
-            //            YUV420p 4个Y对应一套UV，平面结构。 YUV的分布：YYYYUV。Y在一开始。长度等于点数，即宽高的积。
-            glBindTexture(GL_TEXTURE_2D, strongSelf->_texture_YUV[0]);
-            glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, GL_LUMINANCE, GL_UNSIGNED_BYTE, data[0]);
-            //U在Y之后，长度等于点数的1/4，即宽高的积的1/4。
-            glBindTexture(GL_TEXTURE_2D, strongSelf->_texture_YUV[1]);
-            glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width/2, height/2, GL_LUMINANCE, GL_UNSIGNED_BYTE, data[1]);
-            //V在U之后，长度等于点数的1/4，即宽高的积的1/4。
-            glBindTexture(GL_TEXTURE_2D, strongSelf->_texture_YUV[2]);
-            glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width/2, height/2, GL_LUMINANCE, GL_UNSIGNED_BYTE, data[2]);
-            //❀
-            
-            [strongSelf render];
-            
-//              NSLog(@"%@",NSThread.currentThread);
-//              __strong __typeof(weakSelf)strongSelf = weakSelf;
-//
-//
-//                strongSelf->_shader.GetTexture(0,width,height,data[0]);  // Y
-//
-//                if(type == ZTEXTURE_YUV420P || type == ZTEXTURE_YUVJ420P)
-//                {
-//                    //  ZLOGI("===== ZTEXTURE_YUV420P ======");
-//                    //  NSLog(@"===== ZTEXTURE_YUV420P ======");
-//                    strongSelf->_shader.GetTexture(1,width/2,height/2,data[1]);  // U
-//                    strongSelf->_shader.GetTexture(2,width/2,height/2,data[2]);  // V
-//                }
-//                else
-//                {
-//                    //ZLOGI("===== ZTEXTURE_nv12 ======");
-//                    strongSelf->_shader.GetTexture(1,width/2,height/2,data[1], true);  // UV
-//                }
-////                glClear(GL_COLOR_BUFFER_BIT);
-////                glClearColor(0, 1, 1, 1);
-//
-//                strongSelf->_shader.Draw();
-//
-//                // 做完所有绘制操作后，最终呈现到屏幕上
-//                [strongSelf->_context presentRenderbuffer:GL_RENDERBUFFER];
-
- 
-        });
-}
-
-- (void)setShader:(ZShaderType)tpye
-{
-//     __weak __typeof(self)weakSelf = self;
-//        dispatch_async(dispatch_get_main_queue(), ^{
-//             __strong __typeof(weakSelf)strongSelf = weakSelf;
-////            NSLog(@"%@",NSThread.currentThread);
-//            strongSelf->_shader.Init(tpye);
-//
-//        });
- 
+    //设置当前的上下文。
+    BOOL result = [EAGLContext setCurrentContext:self.context];
+    if (!result) {
+        NSLog(@"CAN'T SET CURRENT CONTEXT.");
+    }
     
 }
-
-//- (void)setup{
-//    [self setupLayer];
-//    [self setupContext];
-//    [self setupRenderBuffer];
-//    [self setupFrameBuffer];
-//    NSError *error;
-//    NSAssert1([self checkFramebuffer:&error], @"%@",error.userInfo[@"ErrorMessage"]);
-//}
-
-
-//-(void)dealloc
-//{
-//   
-//    [super dealloc];
-//     _shader.Close();
-//}
 
 - (void)textureSetup { // 对应 XShader 中的 getTexture
     
@@ -415,6 +220,7 @@ void InitShaderWith(void * caller ,ZShaderType type){
     glUniform1i(textureUniformV, 2);
     
 }
+
 //编译shader
 - (GLuint)compileShader:(NSString*)path withType:(GLenum)shaderType
 {
@@ -442,6 +248,94 @@ void InitShaderWith(void * caller ,ZShaderType type){
     
     return shaderHandle;
 }
+
+
+//- (void)displayYUVI420Data:(void *)data width:(GLuint)width height:(GLuint)height {
+//
+//    /*
+//     glTexSubImage2D (GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLenum type, const GLvoid *pixels);
+//     target参数必须是glCopyTexImage2D中的对应的target可使用的值。
+//     level 是mipmap等级。
+//     xoffset,yoffset是要修改的图像的左下角偏移。
+//     width,height是要修改的图像宽高像素。修改的范围在原图之外并不受到影响。
+//     format,type描述了图像数据的格式和类型,和glTexImage2D中的format,type一致。
+//     pixels 是子图像的纹理数据，替换为的值。
+//     */
+//    @synchronized(self)
+//    {
+//
+//        //设置着色器属性
+//        [self setVertexAttributeWidth:width height:height];
+//
+//        /*定义2d图层
+//         之所以要定义，是因为
+//         glTexSubImage2D:定义一个存在的一维纹理图像的一部分,但不能定义新的纹理
+//         glTexImage2D:   定义一个二维的纹理图
+//         所以每次宽高变化的时候需要调用glTexImage2D重新定义一次
+//         */
+//        [self image2DdefineWidth:width height:height];
+//
+//
+//        //设置width，height
+//        [self setWidth:width height:height];
+//
+//        //YUV420p 4个Y对应一套UV，平面结构。 YUV的分布：YYYYUV。Y在一开始。长度等于点数，即宽高的积。
+//        glBindTexture(GL_TEXTURE_2D, _texture_YUV[0]);
+//        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, GL_LUMINANCE, GL_UNSIGNED_BYTE, data);
+//        //U在Y之后，长度等于点数的1/4，即宽高的积的1/4。
+//        glBindTexture(GL_TEXTURE_2D, _texture_YUV[1]);
+//        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width/2, height/2, GL_LUMINANCE, GL_UNSIGNED_BYTE, data + width * height);
+//        //V在U之后，长度等于点数的1/4，即宽高的积的1/4。
+//        glBindTexture(GL_TEXTURE_2D, _texture_YUV[2]);
+//        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width/2, height/2, GL_LUMINANCE, GL_UNSIGNED_BYTE, data + width * height * 5 / 4);
+//
+//        //❀
+//        [self render];
+//    }
+//}
+
+
+-(void)GetTexture:(GLuint)index width:(int)width height:(int)height buf:(unsigned char *[]) buf isa:(bool)isa{
+   
+         dispatch_async(dispatch_get_main_queue(), ^{
+             //设置着色器属性
+             [self setVertexAttributeWidth:width height:height];
+             
+             /*定义2d图层
+              之所以要定义，是因为
+              glTexSubImage2D:定义一个存在的一维纹理图像的一部分,但不能定义新的纹理
+              glTexImage2D:   定义一个二维的纹理图
+              所以每次宽高变化的时候需要调用glTexImage2D重新定义一次
+              */
+             [self image2DdefineWidth:width height:height];
+             
+             
+             //设置width，height
+             [self setWidth:width height:height];
+        
+            //YUV420p 4个Y对应一套UV，平面结构。 YUV的分布：YYYYUV。Y在一开始。长度等于点数，即宽高的积。
+//            glBindTexture(GL_TEXTURE_2D, self->_texture_YUV[index]);
+//            glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, GL_LUMINANCE, GL_UNSIGNED_BYTE,buf[0]);
+            
+//            YUV420p 4个Y对应一套UV，平面结构。 YUV的分布：YYYYUV。Y在一开始。长度等于点数，即宽高的积。
+            glBindTexture(GL_TEXTURE_2D, self->_texture_YUV[0]);
+            glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, GL_LUMINANCE, GL_UNSIGNED_BYTE, buf[0]);
+            //U在Y之后，长度等于点数的1/4，即宽高的积的1/4。
+            glBindTexture(GL_TEXTURE_2D, self->_texture_YUV[1]);
+            glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width/2, height/2, GL_LUMINANCE, GL_UNSIGNED_BYTE, buf[1]);
+            //V在U之后，长度等于点数的1/4，即宽高的积的1/4。
+            glBindTexture(GL_TEXTURE_2D, self->_texture_YUV[2]);
+            glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width/2, height/2, GL_LUMINANCE, GL_UNSIGNED_BYTE, buf[2]);
+            //❀
+            
+            
+            [self render];
+            
+        });
+    
+    
+}
+
 
 
 - (void)setWidth:(GLuint)width height:(GLuint)height {
@@ -479,16 +373,39 @@ void InitShaderWith(void * caller ,ZShaderType type){
     
     //Y
     glBindTexture(GL_TEXTURE_2D, _texture_YUV[0]);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, width, height, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, NULL);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, width, height, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, blackData);
     //U
     glBindTexture(GL_TEXTURE_2D, _texture_YUV[1]);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, width/2, height/2, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, NULL);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, width/2, height/2, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, blackData + width * height);
     //V
     glBindTexture(GL_TEXTURE_2D, _texture_YUV[2]);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, width/2, height/2, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, NULL);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, width/2, height/2, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, blackData + width * height * 5 / 4);
     
     free(blackData);
     
+}
+
+- (void)render {
+    
+    /*
+     glDrawArrays 根据顶点数组中的坐标数据和指定的模式，进行绘制。
+     glDrawArrays (GLenum mode, GLint first, GLsizei count);
+     mode，绘制方式
+     GL_TRIANGLES:
+     第一次取1，2，3，第二次取4，5，6，以此类推，不足三个就停止。
+     
+     GL_TRIANGLE_STRIP:
+     从第一个开始取前三个1，2，3，第二次从第二开始取2，3，4，以此类推到不足3个停止。
+     
+     GL_TRIANGLE_FAN:
+     从第一个开始取，1，2，3，第二次的第二个坐标从3开始，1，3，4，以此类推，到不足三个停止。
+     
+     first，从数组缓存中的哪一位开始绘制，一般为0。
+     count，数组中顶点的数量。
+     */
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    
+    [self.context presentRenderbuffer:GL_RENDERBUFFER];
 }
 
 - (void)setVertexAttributeWidth:(GLuint)width height:(GLuint)height {
@@ -537,13 +454,13 @@ void InitShaderWith(void * caller ,ZShaderType type){
         0.0f, 0.0f,   //左下角
         1.0f, 0.0f,   //右下角
     };
-    //    static const GLfloat coordVertices[] = {
-    //
-    //        1.0f, 1.0f,   //右上角
-    //        0.0f, 1.0f,   //左上角
-    //        1.0f, 0.0f,   //右下角
-    //        0.0f, 0.0f,   //左下角
-    //    };
+//    static const GLfloat coordVertices[] = {
+//        
+//        1.0f, 1.0f,   //右上角
+//        0.0f, 1.0f,   //左上角
+//        1.0f, 0.0f,   //右下角
+//        0.0f, 0.0f,   //左下角
+//    };
     
     
     /*激活顶点着色器属性*/
@@ -566,32 +483,10 @@ void InitShaderWith(void * caller ,ZShaderType type){
     
 }
 
+
 - (void)layoutSubviews {
     [self destoryFrameAndRenderBuffer];
     [self bufferCreate];
-}
-
-- (void)render {
-    
-    /*
-     glDrawArrays 根据顶点数组中的坐标数据和指定的模式，进行绘制。
-     glDrawArrays (GLenum mode, GLint first, GLsizei count);
-     mode，绘制方式
-     GL_TRIANGLES:
-     第一次取1，2，3，第二次取4，5，6，以此类推，不足三个就停止。
-     
-     GL_TRIANGLE_STRIP:
-     从第一个开始取前三个1，2，3，第二次从第二开始取2，3，4，以此类推到不足3个停止。
-     
-     GL_TRIANGLE_FAN:
-     从第一个开始取，1，2，3，第二次的第二个坐标从3开始，1，3，4，以此类推，到不足三个停止。
-     
-     first，从数组缓存中的哪一位开始绘制，一般为0。
-     count，数组中顶点的数量。
-     */
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-    
-    [self.context presentRenderbuffer:GL_RENDERBUFFER];
 }
 
 
@@ -618,7 +513,6 @@ void InitShaderWith(void * caller ,ZShaderType type){
     return YES;
 }
 
-
 - (void)destoryFrameAndRenderBuffer
 {
     if (_framebuffer)
@@ -634,4 +528,11 @@ void InitShaderWith(void * caller ,ZShaderType type){
     _framebuffer = 0;
     _renderbuffer = 0;
 }
+
+//修改当前layer的创建出来的类为CAEAGLLayer。
++ (Class)layerClass
+{
+    return [CAEAGLLayer class];
+}
+
 @end

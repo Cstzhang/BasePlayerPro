@@ -4,7 +4,9 @@
 
 #include "ZTexture.h"
 #include "ZLog.h"
-
+#include<iostream>
+#include<thread>
+using namespace std;
 
 #ifdef __OBJC__
 #include "ZPlayerView.h"
@@ -16,11 +18,14 @@ class CZTexture:public ZTexture
 {
 public:
     void *win;
-    drawInterface drawCall;
-    initShaderInterface initShaderCall;
+//    drawInterface drawCall;
+    drawTest drawCall;
+//    initShaderInterface initShaderCall;
    // ZShader sh;
     ZTextureType type;
     std::mutex mux;
+    unsigned char* buf[];
+    
     virtual void Drop()
     {
         mux.lock();
@@ -32,11 +37,13 @@ public:
         delete this;
     }
 
-    virtual bool Init(void *win,void *rCall,void *sCall,ZTextureType type)
+    virtual bool Init(void *win,void *rCall,ZTextureType type)
     {
         mux.lock();
 //        ZEGL::Get()->Close();
        // sh.Close();
+//        std::thread::id tid = std::this_thread::get_id();
+//        cout << "==============f id=" << tid << endl;
         this->type = type;
         if(!win)
         {
@@ -52,33 +59,41 @@ public:
 //        }
 
         this->win = win;
-        this->drawCall = (drawInterface)rCall;
-        this->initShaderCall =(initShaderInterface)sCall;
+        this->drawCall = (drawTest)rCall;
+//        this->initShaderCall =(initShaderInterface)sCall;
         //初始化shader
        // sh.Init((ZShaderType)type);
-        this->initShaderCall(this->win,(ZShaderType)type);
+//        this->initShaderCall(this->win,(ZShaderType)type);
         mux.unlock();
         return true;
     }
     virtual void Draw(unsigned char *data[],int width,int height)
     {
+        //  NSLog(@"%@",NSThread.currentThread);
+//        std::thread::id tid = std::this_thread::get_id();
+//        cout << "==============f id=" << tid << endl;
         mux.lock();
       //  sh.GetTexture(0,width,height,data[0]);  // Y
-
-        if(type == ZTEXTURE_YUV420P)
+        buf[0] = data[0];
+        
+        if(type == ZTEXTURE_YUV420P || type ==ZTEXTURE_YUVJ420P)
         {
+            buf[1] = data[1];
+            buf[2] = data[2];
            // ZLOGI("===== ZTEXTURE_YUV420P ======");
         //    sh.GetTexture(1,width/2,height/2,data[1]);  // U
           //  sh.GetTexture(2,width/2,height/2,data[2]);  // V
         }
         else
         {
+            buf[1] = data[1];
             //ZLOGI("===== ZTEXTURE_nv12 ======");
          //   sh.GetTexture(1,width/2,height/2,data[1], true);  // UV
         } 
         //sh.Draw();
 //        ZEGL::Get()->Draw();
-        this->drawCall(this->win,this->type,width,height,data);
+//        this->drawCall(this->win,this->type,width,height,buf);
+          this->drawCall(this->win,0,width,height,buf,false);
         mux.unlock();
     }
 

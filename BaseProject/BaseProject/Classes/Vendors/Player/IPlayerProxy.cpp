@@ -102,12 +102,12 @@ bool IPlayerProxy::Start()
     mux.unlock();
     return re;
 }
-void IPlayerProxy::BindView(void *win,void *randerCall,void *shaderCall)
+void IPlayerProxy::BindView(void *win,void *randerCall)
 {
     mux.lock();
     if (player)
     {
-        player->BindView(win,randerCall,shaderCall);
+        player->BindView(win,randerCall);
     }
     mux.unlock();
 }

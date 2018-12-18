@@ -36,6 +36,7 @@ static const char *fragYUV420P = GET_STR(
                        1.13983,-0.58060,0.0)*yuv;
             //输出像素颜色
             gl_FragColor = vec4(rgb,1.0);
+
         }
 );
 
@@ -165,7 +166,6 @@ bool ZShader::Init(ZShaderType type)
             break;
         case ZSHADER_NV21:
             fsh = InitShader(fragNV21,GL_FRAGMENT_SHADER);
-
             break;
         default:
             mux.unlock();
@@ -274,6 +274,7 @@ void ZShader::Draw()
 void ZShader::GetTexture(unsigned int index, int width, int height, unsigned char *buf,bool isa)
 {
 
+
     unsigned int format =GL_LUMINANCE;
     if(isa)
         format = GL_LUMINANCE_ALPHA;
@@ -300,7 +301,6 @@ void ZShader::GetTexture(unsigned int index, int width, int height, unsigned cha
                      NULL                    //纹理的数据
         );
     }
-
 
     //激活第1层纹理,绑定到创建的opengl纹理
     glActiveTexture(GL_TEXTURE0+index);

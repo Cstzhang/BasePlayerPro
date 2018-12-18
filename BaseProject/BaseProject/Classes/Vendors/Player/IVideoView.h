@@ -14,7 +14,7 @@ class IVideoView:public IObserver
 public:
     //设置显示窗口
     
-    virtual void SetRender(void *win,void *randerCall,void *shaderCall) = 0;
+    virtual void SetRender(void *win,void *randerCall) = 0;
     virtual void Render(ZData data) = 0;
     virtual void Update(ZData data);
     virtual void Close() = 0;

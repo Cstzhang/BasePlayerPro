@@ -202,7 +202,7 @@ bool SLAudioPlay::StartPlay(ZParameter out)
 //        return false;
 //    }
 //
-//    //设置回调函数，播放队列空调用
+//    //设置回调函数，播放队列空调用s
 //    (*pcmQue)->RegisterCallback(pcmQue,PcmCall,this);//缓冲队列播放完的时候调用PcmCall
 //
 //    //设置为播放状态

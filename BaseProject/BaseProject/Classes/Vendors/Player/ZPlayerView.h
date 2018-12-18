@@ -12,9 +12,10 @@
 @interface ZPlayerView : UIView
 
 
-@property drawInterface rCall;
-@property initShaderInterface sCall;
+@property drawTest rCall;
+//@property initShaderInterface sCall;
 
+- (void)setup;
 - (void)render:(ZTextureType)type w:(int)width h:(int)height data:(unsigned char *[])data;
 - (void)setShader:(ZShaderType)tpye;
 

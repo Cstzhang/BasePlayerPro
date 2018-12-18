@@ -23,7 +23,7 @@ public:
     virtual bool Open(const char *path);
     virtual void Close();
     virtual bool Start();
-    virtual void BindView(void *win,void *randerCall,void *shaderCall);
+    virtual void BindView(void *win,void *randerCall);
     virtual double PlayPos();
     virtual bool Seek(double pos);
     virtual void SetPause(bool isP);

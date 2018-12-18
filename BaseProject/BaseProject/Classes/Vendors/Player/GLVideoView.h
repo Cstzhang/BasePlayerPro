@@ -13,7 +13,7 @@ class ZTexture;
 class GLVideoView:public IVideoView
 {
 public:
-    virtual void SetRender(void *win,void *randerCall,void *shaderCall);
+    virtual void SetRender(void *win,void *randerCall);
     virtual void Render(ZData data);
     virtual void Close();
 protected:

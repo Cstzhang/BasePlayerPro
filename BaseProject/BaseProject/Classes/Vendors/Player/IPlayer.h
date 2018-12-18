@@ -23,7 +23,7 @@ public:
     virtual bool Open(const char *path);
     virtual void Close();
     virtual bool Start();
-    virtual void BindView(void *win,void *randerCall,void *shaderCall);
+    virtual void BindView(void *win,void *randerCall);
     //获取当前的播放进度 0.0~1.0
     virtual double PlayPos();
     virtual bool Seek(double pos);

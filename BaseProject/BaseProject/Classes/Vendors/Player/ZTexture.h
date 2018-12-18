@@ -7,12 +7,11 @@
 #include "ZShader.h"
 
 
-
 class ZTexture
 {
 public:
     static ZTexture *Create();
-    virtual bool Init(void *win,void *rCall,void *sCall,ZTextureType type=ZTEXTURE_YUV420P) = 0;
+    virtual bool Init(void *win,void *rCall,ZTextureType type=ZTEXTURE_YUV420P) = 0;
     virtual void Draw(unsigned char *data[],int width,int height) = 0;
     virtual void Drop() = 0;
     virtual ~ZTexture(){};

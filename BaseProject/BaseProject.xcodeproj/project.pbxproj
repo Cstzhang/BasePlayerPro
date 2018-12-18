@@ -41,6 +41,14 @@
 		F0575C1F4E62E0548093BADC /* libPods-BaseProjectTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D4D6A9C443823B255C39D01D /* libPods-BaseProjectTests.a */; };
 		FF119DEA219C23BA0047E8B5 /* ZBFileUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = FF119DE9219C23BA0047E8B5 /* ZBFileUtil.m */; };
 		FF119DEB219C23BA0047E8B5 /* ZBFileUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = FF119DE9219C23BA0047E8B5 /* ZBFileUtil.m */; };
+		FF2D20DB21C89CF300C2152F /* file.fsh in Resources */ = {isa = PBXBuildFile; fileRef = FF2D20D921C89CF300C2152F /* file.fsh */; };
+		FF2D20DC21C89CF300C2152F /* file.fsh in Resources */ = {isa = PBXBuildFile; fileRef = FF2D20D921C89CF300C2152F /* file.fsh */; };
+		FF2D20DD21C89CF300C2152F /* file.vsh in Resources */ = {isa = PBXBuildFile; fileRef = FF2D20DA21C89CF300C2152F /* file.vsh */; };
+		FF2D20DE21C89CF300C2152F /* file.vsh in Resources */ = {isa = PBXBuildFile; fileRef = FF2D20DA21C89CF300C2152F /* file.vsh */; };
+		FF2D20E121C8E4C600C2152F /* YUVView.m in Sources */ = {isa = PBXBuildFile; fileRef = FF2D20E021C8E4C600C2152F /* YUVView.m */; };
+		FF2D20E221C8E4C600C2152F /* YUVView.m in Sources */ = {isa = PBXBuildFile; fileRef = FF2D20E021C8E4C600C2152F /* YUVView.m */; };
+		FF2D20E821C8EA8700C2152F /* PCMDataPlayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = FF2D20E721C8EA8700C2152F /* PCMDataPlayer.mm */; };
+		FF2D20E921C8EA8700C2152F /* PCMDataPlayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = FF2D20E721C8EA8700C2152F /* PCMDataPlayer.mm */; };
 		FF51DE3B219E96C80013363C /* FFResample.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FF51DE0E219E96C40013363C /* FFResample.cpp */; };
 		FF51DE3C219E96C80013363C /* FFResample.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FF51DE0E219E96C40013363C /* FFResample.cpp */; };
 		FF51DE3D219E96C80013363C /* FFDecode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FF51DE0F219E96C40013363C /* FFDecode.cpp */; };
@@ -182,6 +190,12 @@
 		D4D6A9C443823B255C39D01D /* libPods-BaseProjectTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-BaseProjectTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		FF119DE8219C23BA0047E8B5 /* ZBFileUtil.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZBFileUtil.h; sourceTree = "<group>"; };
 		FF119DE9219C23BA0047E8B5 /* ZBFileUtil.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZBFileUtil.m; sourceTree = "<group>"; };
+		FF2D20D921C89CF300C2152F /* file.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = file.fsh; sourceTree = "<group>"; };
+		FF2D20DA21C89CF300C2152F /* file.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = file.vsh; sourceTree = "<group>"; };
+		FF2D20DF21C8E4C500C2152F /* YUVView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YUVView.h; sourceTree = "<group>"; };
+		FF2D20E021C8E4C600C2152F /* YUVView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YUVView.m; sourceTree = "<group>"; };
+		FF2D20E621C8EA8600C2152F /* PCMDataPlayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PCMDataPlayer.h; sourceTree = "<group>"; };
+		FF2D20E721C8EA8700C2152F /* PCMDataPlayer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = PCMDataPlayer.mm; sourceTree = "<group>"; };
 		FF51DE0E219E96C40013363C /* FFResample.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FFResample.cpp; sourceTree = "<group>"; };
 		FF51DE0F219E96C40013363C /* FFDecode.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FFDecode.cpp; sourceTree = "<group>"; };
 		FF51DE10219E96C40013363C /* ZTexture.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ZTexture.cpp; sourceTree = "<group>"; };
@@ -536,48 +550,48 @@
 		FF119D6C219BFB5F0047E8B5 /* Player */ = {
 			isa = PBXGroup;
 			children = (
-				FF51DE0F219E96C40013363C /* FFDecode.cpp */,
 				FF51DE38219E96C80013363C /* FFDecode.h */,
-				FF51DE2E219E96C70013363C /* FFDemux.cpp */,
+				FF51DE0F219E96C40013363C /* FFDecode.cpp */,
 				FF51DE16219E96C50013363C /* FFDemux.h */,
-				FF51DE19219E96C50013363C /* FFPlayerBuilder.cpp */,
+				FF51DE2E219E96C70013363C /* FFDemux.cpp */,
 				FF51DE26219E96C60013363C /* FFPlayerBuilder.h */,
-				FF51DE0E219E96C40013363C /* FFResample.cpp */,
+				FF51DE19219E96C50013363C /* FFPlayerBuilder.cpp */,
 				FF51DE3A219E96C80013363C /* FFResample.h */,
-				FF51DE15219E96C50013363C /* GLVideoView.cpp */,
+				FF51DE0E219E96C40013363C /* FFResample.cpp */,
 				FF51DE12219E96C40013363C /* GLVideoView.h */,
-				FF51DE2F219E96C70013363C /* IAudioPlay.cpp */,
+				FF51DE15219E96C50013363C /* GLVideoView.cpp */,
 				FF51DE34219E96C70013363C /* IAudioPlay.h */,
-				FF51DE30219E96C70013363C /* IDecode.cpp */,
+				FF51DE2F219E96C70013363C /* IAudioPlay.cpp */,
 				FF51DE2A219E96C60013363C /* IDecode.h */,
-				FF51DE1C219E96C50013363C /* IDemux.cpp */,
+				FF51DE30219E96C70013363C /* IDecode.cpp */,
 				FF51DE11219E96C40013363C /* IDemux.h */,
-				FF51DE1A219E96C50013363C /* IObserver.cpp */,
+				FF51DE1C219E96C50013363C /* IDemux.cpp */,
 				FF51DE22219E96C60013363C /* IObserver.h */,
-				FF51DE2D219E96C70013363C /* IPlayer.cpp */,
+				FF51DE1A219E96C50013363C /* IObserver.cpp */,
 				FF51DE32219E96C70013363C /* IPlayer.h */,
-				FF51DE14219E96C40013363C /* IPlayerBuilder.cpp */,
+				FF51DE2D219E96C70013363C /* IPlayer.cpp */,
 				FF51DE13219E96C40013363C /* IPlayerBuilder.h */,
-				FF51DE17219E96C50013363C /* IPlayerProxy.cpp */,
+				FF51DE14219E96C40013363C /* IPlayerBuilder.cpp */,
 				FF51DE18219E96C50013363C /* IPlayerProxy.h */,
-				FF51DE2C219E96C70013363C /* IResample.cpp */,
+				FF51DE17219E96C50013363C /* IPlayerProxy.cpp */,
 				FF51DE1B219E96C50013363C /* IResample.h */,
-				FF51DE23219E96C60013363C /* IVideoView.cpp */,
+				FF51DE2C219E96C70013363C /* IResample.cpp */,
 				FF51DE36219E96C80013363C /* IVideoView.h */,
-				FF51DE37219E96C80013363C /* SLAudioPlay.cpp */,
+				FF51DE23219E96C60013363C /* IVideoView.cpp */,
 				FF51DE28219E96C60013363C /* SLAudioPlay.h */,
-				FF51DE1D219E96C50013363C /* ZData.cpp */,
+				FF51DE37219E96C80013363C /* SLAudioPlay.cpp */,
 				FF51DE27219E96C60013363C /* ZData.h */,
-				FF51DE24219E96C60013363C /* ZLog.cpp */,
+				FF51DE1D219E96C50013363C /* ZData.cpp */,
 				FF51DE2B219E96C70013363C /* ZLog.h */,
-				FF51DE35219E96C70013363C /* ZParameter.cpp */,
+				FF51DE24219E96C60013363C /* ZLog.cpp */,
 				FF51DE25219E96C60013363C /* ZParameter.h */,
-				FF51DE1E219E96C50013363C /* ZShader.cpp */,
+				FF51DE35219E96C70013363C /* ZParameter.cpp */,
 				FF51DE31219E96C70013363C /* ZShader.h */,
-				FF51DE10219E96C40013363C /* ZTexture.cpp */,
+				FF51DE1E219E96C50013363C /* ZShader.cpp */,
 				FF51DE33219E96C70013363C /* ZTexture.h */,
-				FF51DE39219E96C80013363C /* ZThread.cpp */,
+				FF51DE10219E96C40013363C /* ZTexture.cpp */,
 				FF51DE21219E96C50013363C /* ZThread.h */,
+				FF51DE39219E96C80013363C /* ZThread.cpp */,
 				FF51DE69219EB9C00013363C /* ZPlayerView.h */,
 				FF51DE6A219EB9C00013363C /* ZPlayerView.mm */,
 				FF51DE6E219EDE950013363C /* DrawCallbackInterface.h */,
@@ -592,6 +606,15 @@
 				FF119DE9219C23BA0047E8B5 /* ZBFileUtil.m */,
 			);
 			path = Utils;
+			sourceTree = "<group>";
+		};
+		FF2D20E521C8EA6E00C2152F /* PCMPlayer */ = {
+			isa = PBXGroup;
+			children = (
+				FF2D20E621C8EA8600C2152F /* PCMDataPlayer.h */,
+				FF2D20E721C8EA8700C2152F /* PCMDataPlayer.mm */,
+			);
+			path = PCMPlayer;
 			sourceTree = "<group>";
 		};
 		FF9FCB50218989CC0079FE1D = {
@@ -706,6 +729,7 @@
 		FF9FCB8821898FA60079FE1D /* Vendors */ = {
 			isa = PBXGroup;
 			children = (
+				FF2D20E521C8EA6E00C2152F /* PCMPlayer */,
 				6D73585421C6467F005DB3CF /* TUTK */,
 				FF119D6C219BFB5F0047E8B5 /* Player */,
 				FFE0CDA5218C34C90065173B /* FFmpeg402 */,
@@ -763,6 +787,8 @@
 		FF9FCBA12189A0CA0079FE1D /* Home */ = {
 			isa = PBXGroup;
 			children = (
+				FF2D20DF21C8E4C500C2152F /* YUVView.h */,
+				FF2D20E021C8E4C600C2152F /* YUVView.m */,
 				FF9FCBA32189A19B0079FE1D /* ZBHomeViewController.h */,
 				FF9FCBA42189A19B0079FE1D /* ZBHomeViewController.mm */,
 				FF9FCBA52189A19B0079FE1D /* ZBHomeViewController.xib */,
@@ -794,6 +820,8 @@
 		FFE0CDA5218C34C90065173B /* FFmpeg402 */ = {
 			isa = PBXGroup;
 			children = (
+				FF2D20D921C89CF300C2152F /* file.fsh */,
+				FF2D20DA21C89CF300C2152F /* file.vsh */,
 				FFE0CDA6218C34E50065173B /* include */,
 				FFE0CE1D218C34E70065173B /* lib */,
 			);
@@ -1095,8 +1123,10 @@
 				FF9FCB69218989CE0079FE1D /* LaunchScreen.storyboard in Resources */,
 				6D73584021C64322005DB3CF /* success@2x.png in Resources */,
 				6D73583E21C64322005DB3CF /* ZBHUD_Success@3x.png in Resources */,
+				FF2D20DD21C89CF300C2152F /* file.vsh in Resources */,
 				FF9FCBA82189A19B0079FE1D /* ZBHomeViewController.xib in Resources */,
 				6D73583C21C64322005DB3CF /* error@2x.png in Resources */,
+				FF2D20DB21C89CF300C2152F /* file.fsh in Resources */,
 				6D73584C21C64322005DB3CF /* ZBHUD_Info@3x.png in Resources */,
 				6D73583821C64322005DB3CF /* ZBHUD_Success@2x.png in Resources */,
 				6D73584221C64322005DB3CF /* success@3x.png in Resources */,
@@ -1120,7 +1150,9 @@
 				6D73583B21C64322005DB3CF /* error@3x.png in Resources */,
 				FF9FCBA92189A19B0079FE1D /* ZBHomeViewController.xib in Resources */,
 				6D73584B21C64322005DB3CF /* ZBHUD_Warn@2x.png in Resources */,
+				FF2D20DE21C89CF300C2152F /* file.vsh in Resources */,
 				6D73583D21C64322005DB3CF /* error@2x.png in Resources */,
+				FF2D20DC21C89CF300C2152F /* file.fsh in Resources */,
 				6D73584121C64322005DB3CF /* success@2x.png in Resources */,
 				6D73584D21C64322005DB3CF /* ZBHUD_Info@3x.png in Resources */,
 				6D73583921C64322005DB3CF /* ZBHUD_Success@2x.png in Resources */,
@@ -1193,6 +1225,7 @@
 				6D73586221C6467F005DB3CF /* ZBTutkClient.m in Sources */,
 				FFEEB710218AAA61001992E2 /* ZBCacheManager.m in Sources */,
 				FF51DE47219E96C80013363C /* FFPlayerBuilder.cpp in Sources */,
+				FF2D20E121C8E4C600C2152F /* YUVView.m in Sources */,
 				FF51DE41219E96C80013363C /* IPlayerBuilder.cpp in Sources */,
 				FF51DE3D219E96C80013363C /* FFDecode.cpp in Sources */,
 				FFEEB700218A96A9001992E2 /* ZBURLRequest.m in Sources */,
@@ -1208,6 +1241,7 @@
 				FFEEB70C218AA54A001992E2 /* NSString+ZBUTF8Encoding.m in Sources */,
 				FF51DE43219E96C80013363C /* GLVideoView.cpp in Sources */,
 				FF51DE3B219E96C80013363C /* FFResample.cpp in Sources */,
+				FF2D20E821C8EA8700C2152F /* PCMDataPlayer.mm in Sources */,
 				FF9FCB9D21899C250079FE1D /* ZBRootTabBarController.m in Sources */,
 				FF9FCB9921899C000079FE1D /* ZBRootNavigationController.m in Sources */,
 				FF119DEA219C23BA0047E8B5 /* ZBFileUtil.m in Sources */,
@@ -1237,6 +1271,7 @@
 				FF9FCB9E21899C250079FE1D /* ZBRootTabBarController.m in Sources */,
 				FF51DE44219E96C80013363C /* GLVideoView.cpp in Sources */,
 				FFEEB701218A96A9001992E2 /* ZBURLRequest.m in Sources */,
+				FF2D20E921C8EA8700C2152F /* PCMDataPlayer.mm in Sources */,
 				FFEEB705218AA159001992E2 /* ZBRequestManager.m in Sources */,
 				FF51DE60219E96C80013363C /* IAudioPlay.cpp in Sources */,
 				FF51DE4C219E96C80013363C /* IDemux.cpp in Sources */,
@@ -1244,6 +1279,7 @@
 				FFEEB711218AAA61001992E2 /* ZBCacheManager.m in Sources */,
 				FF51DE46219E96C80013363C /* IPlayerProxy.cpp in Sources */,
 				FF51DE54219E96C80013363C /* IVideoView.cpp in Sources */,
+				FF2D20E221C8E4C600C2152F /* YUVView.m in Sources */,
 				FF9FCBAE2189A1A80079FE1D /* ZBMeViewController.m in Sources */,
 				FF51DE3E219E96C80013363C /* FFDecode.cpp in Sources */,
 				FF119DEB219C23BA0047E8B5 /* ZBFileUtil.m in Sources */,

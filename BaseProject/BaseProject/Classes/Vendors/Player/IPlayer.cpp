@@ -310,12 +310,12 @@ bool IPlayer::Start()
     return true;
 }
 
-void IPlayer::BindView(void *win,void *randerCall,void *shaderCall)
+void IPlayer::BindView(void *win,void *randerCall)
 {
     if(videoView)
     {
         videoView->Close();
-        videoView->SetRender(win,randerCall,shaderCall);
+        videoView->SetRender(win,randerCall);
     }
 
 }

@@ -5,11 +5,10 @@
 #include "GLVideoView.h"
 #include "ZTexture.h"
 #include "ZLog.h"
-void  GLVideoView:: SetRender(void *win,void *randerCall,void *shaderCall)
+void  GLVideoView:: SetRender(void *win,void *randerCall)
 {
     view = win;
     rCall = randerCall;
-    sCall = shaderCall;
 }
 
 
@@ -37,7 +36,7 @@ void  GLVideoView::Render(ZData data)
     {
         //创建 texture
         txt = ZTexture::Create();
-        txt->Init(view,rCall,sCall,(ZTextureType)data.format);
+        txt->Init(view,rCall,(ZTextureType)data.format);
     }
     txt->Draw(data.datas,data.width,data.height);
 

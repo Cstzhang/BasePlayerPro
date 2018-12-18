@@ -26,8 +26,14 @@ public:
     virtual ZData RecvFrame();
     virtual  void  Clear();
 protected:
+    void SwsScale();
     AVCodecContext *codec = 0;
+    struct SwsContext *img_convert_ctx =0;
     AVFrame *frame = 0;
+    AVFrame *pFrameYUV = 0;
+    
+    //可以理解成缓冲数组
+    uint8_t *out_buffer;
     std::mutex mux;
 };
 

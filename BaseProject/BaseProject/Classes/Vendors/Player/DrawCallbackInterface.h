@@ -28,9 +28,13 @@ enum ZShaderType
 };
 
 
-typedef void(*drawInterface)(void * caller ,ZTextureType type, int width, int height, unsigned char *data[]);
+//typedef void(*drawInterface)(void * caller ,ZTextureType type, int width, int height, unsigned char *data[]);
+//
+//typedef void(*initShaderInterface)(void * caller ,ZShaderType type);
 
-typedef void(*initShaderInterface)(void * caller ,ZShaderType type);
 
+typedef void(*interface) (void* caller, void* parameter);
+typedef void(*drawInterface)(void* caller, void* data, unsigned int width,unsigned int height);
+typedef void(*drawTest)(void* caller, unsigned int index, int width, int height, unsigned char* buf[], bool isa);
 
 #endif /* DrawCallbackInterface_h */
